@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { View, Text, StyleSheet, Pressable, Image } from "react-native";
 import { Audio } from "expo-av";
 import * as Speech from "expo-speech";
@@ -37,6 +37,7 @@ const letterData = {
 
 export default function LetterActivitiesScreen() {
   const { letter } = useLocalSearchParams();
+  const router = useRouter();
   const [sound, setSound] = useState<Audio.Sound | null>(null);
 
   const playLetterSound = async () => {
@@ -87,6 +88,14 @@ export default function LetterActivitiesScreen() {
           </Pressable>
         ))}
       </View>
+
+      {/* ✅ Next Button */}
+      <Pressable
+        style={styles.nextButton}
+        onPress={() => router.push(`/sound-matching?letter=${letter}`)}
+      >
+        <Text style={styles.nextButtonText}>➡️ Next</Text>
+      </Pressable>
     </View>
   );
 }
@@ -130,5 +139,17 @@ const styles = StyleSheet.create({
   wordLabel: {
     fontSize: 16,
     fontWeight: "500",
+  },
+  nextButton: {
+    backgroundColor: "#28a745",
+    padding: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 30,
+  },
+  nextButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
   },
 });
