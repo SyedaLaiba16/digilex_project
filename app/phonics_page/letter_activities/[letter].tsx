@@ -33,6 +33,34 @@ const letterData = {
       { label: "Pin", image: require("../../../assets/images/pin.png") },
     ],
   },
+  I: {
+    sound: require("../../../assets/sound/i.m4a"),
+    words: [
+      { label: "Igloo", image: require("../../../assets/images/igloo.jpg") },
+      { label: "Insect", image: require("../../../assets/images/insect.jpg") },
+    ],
+  },
+  N: {
+    sound: require("../../../assets/sound/n.m4a"),
+    words: [
+      { label: "Nest", image: require("../../../assets/images/nest.jpg") },
+      { label: "Nose", image: require("../../../assets/images/nose.jpg") },
+    ],
+  },
+  M: {
+    sound: require("../../../assets/sound/m.m4a"),
+    words: [
+      { label: "Moon", image: require("../../../assets/images/moon.jpg") },
+      { label: "Mango", image: require("../../../assets/images/mango.jpg") },
+    ],
+  },
+  D: {
+    sound: require("../../../assets/sound/d.m4a"),
+    words: [
+      { label: "Dog", image: require("../../../assets/images/dog.png") },
+      { label: "Duck", image: require("../../../assets/images/duck.jpg") },
+    ],
+  },
 };
 
 export default function LetterActivitiesScreen() {
@@ -92,7 +120,27 @@ export default function LetterActivitiesScreen() {
       {/* ✅ Next Button */}
       <Pressable
         style={styles.nextButton}
-        onPress={() => router.push(`/sound-matching?letter=${letter}`)}
+        onPress={() => {
+          if (letter === "S") {
+            router.push("/phonics_page/sound-matching_s");
+          } else if (letter === "A") {
+            router.push("phonics_page/sound-matching_a");
+          } else if (letter === "T") {
+            router.push("phonics_page/sound-matching_t");
+          } else if (letter === "P") {
+            router.push("phonics_page/sound-matching_p");
+          } else if (letter === "I") {
+            router.push("phonics_page/sound-matching_i");
+          } else if (letter === "N") {
+            router.push("phonics_page/sound-matching_n");
+          } else if (letter === "M") {
+            router.push("phonics_page/sound-matching_m");
+          } else if (letter === "D") {
+            router.push("phonics_page/sound-matching_d");
+          } else {
+            console.warn("No navigation defined for this letter");
+          }
+        }}
       >
         <Text style={styles.nextButtonText}>➡️ Next</Text>
       </Pressable>

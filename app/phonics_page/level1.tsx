@@ -9,6 +9,10 @@ const data = [
   { letter: "A", sound: require("../../assets/sound/a.m4a") },
   { letter: "T", sound: require("../../assets/sound/t.m4a") },
   { letter: "P", sound: require("../../assets/sound/p.m4a") },
+  { letter: "I", sound: require("../../assets/sound/i.m4a") },
+  { letter: "N", sound: require("../../assets/sound/n.m4a") },
+  { letter: "M", sound: require("../../assets/sound/m.m4a") },
+  { letter: "D", sound: require("../../assets/sound/d.m4a") },
 ];
 
 export default function Level1Screen() {
