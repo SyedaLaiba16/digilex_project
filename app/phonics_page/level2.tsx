@@ -43,9 +43,10 @@ export default function Level4Screen() {
             style={styles.cloudBox}
             onPress={() => {
               playSound(item.sound);
-              router.push(
-                `/phonics_page/letter_activities/${item.letter.toLowerCase()}`
-              );
+              router.push({
+      pathname: "/phonics_page/letter_activities/[letter2]",
+      params: { letter: item.letter },
+    });
             }}
           >
             <View style={styles.letterRow}>
