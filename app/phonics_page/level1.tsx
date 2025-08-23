@@ -1,8 +1,8 @@
 import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
 import { Audio } from "expo-av";
-import { router } from "expo-router";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons"; // for sound icon
+import { useRouter } from "expo-router"; // ✅ sahi import
 
 const data = [
   { letter: "S", sound: require("../../assets/sound/s.m4a") },
@@ -17,6 +17,7 @@ const data = [
 
 export default function Level1Screen() {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const router = useRouter();
 
   const playSound = async (soundFile: any) => {
     if (sound) {
@@ -38,9 +39,12 @@ export default function Level1Screen() {
         renderItem={({ item }) => (
           <Pressable
             style={styles.cloudBox}
-            onPress={() => {
-              playSound(item.sound);
-              router.push(`/phonics_page/letter_activities/${item.letter}`);
+            onPress={async () => {
+              await playSound(item.sound); // pehle sound play kare
+              router.push({
+                pathname: "phonics_page/[letter1]", // ✅ dynamic route
+                params: { letter: item.letter },   // ✅ param bhejna
+              });
             }}
           >
             <View style={styles.letterRow}>

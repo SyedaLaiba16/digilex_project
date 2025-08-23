@@ -44,7 +44,7 @@ export default function Level4Screen() {
             onPress={() => {
               playSound(item.sound);
               router.push({
-      pathname: "/phonics_page/letter_activities/[letter2]",
+      pathname: "/phonics_page/[letter1]",
       params: { letter: item.letter },
     });
             }}

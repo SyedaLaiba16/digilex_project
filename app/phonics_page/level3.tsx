@@ -11,7 +11,7 @@ const data = [
   { letter: "X", sound: require("../../assets/sound/x.m4a") },
   { letter: "Y", sound: require("../../assets/sound/y.m4a") },
   { letter: "Z", sound: require("../../assets/sound/z.m4a") },
-  { letter: "Qu", sound: require("../../assets/sound/qu.m4a") },
+  { letter: "Q", sound: require("../../assets/sound/qu.m4a") },
 ];
 
 export default function LevelJVWXYZScreen() {
@@ -39,7 +39,10 @@ export default function LevelJVWXYZScreen() {
             style={styles.cloudBox}
             onPress={() => {
               playSound(item.sound);
-              router.push(`/phonics_page/letter_activities/${item.letter}`);
+             router.push({
+      pathname: "/phonics_page/[letter1]",
+      params: { letter: item.letter },
+    });
               
             }}
           >

@@ -6,8 +6,8 @@ const levels = [
   { id: "1", name: "Level 1", route: "/phonics_page/level1" },
   { id: "2", name: "Level 2", route: "/phonics_page/level2" },
   { id: "3", name: "Level 3", route: "/phonics_page/level3" },
-  { id: "4", name: "Level 4", route: "/phonics_page/level4" },
-  { id: "5", name: "Level 5", route: "/phonics_page/level5" },
+  { id: "4", name: "Letter Builder", route: "/phonics_page/Letter_Builder" },
+  { id: "5", name: "Quiz", route: "/phonics_page/quiz" },
 ];
 
 const PhonicsLevels = () => {

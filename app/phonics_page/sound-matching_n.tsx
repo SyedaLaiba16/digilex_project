@@ -1,226 +1,222 @@
-import { useRouter } from "expo-router";
-import { View, Text, StyleSheet, Pressable, Image, Alert, Vibration } from "react-native";
+// app/phonics_page/FlashcardDrill_N.tsx
+import { View, Text, StyleSheet, Pressable, Image, Alert } from "react-native";
 import { Audio } from "expo-av";
-import React, { useState, useEffect } from "react";
-import * as Speech from "expo-speech";
+import React, { useEffect, useState } from "react";
+import Voice from "@react-native-voice/voice";
 
-// All questions for letter N
-const nQuestions = [
+// Quiz Data for Letter N
+const quizData = [
   {
-    letter: "N",
-    sound: require("../../assets/sound/n.m4a"), // 👈 Make sure this file exists
-    correctAnswers: [
-      { label: "Nest", image: require("../../assets/images/nest.jpg") },
-    ],
-    options: [
-      { label: "Nest", image: require("../../assets/images/nest.jpg") },
-      { label: "Dog", image: require("../../assets/images/dog.png") },
-      { label: "Car", image: require("../../assets/images/car.png") },
-    ],
+    type: "sound", // show only speaker
+    question: "Which sound is this?",
+    answer: "N",
+    options: ["N", "B", "H", "K"],
+    sound: require("../../assets/sound/n.m4a"),
   },
   {
-    letter: "N",
-    sound: require("../../assets/sound/n.m4a"),
-    correctAnswers: [
-      { label: "Nose", image: require("../../assets/images/nose.jpg") },
-    ],
+    type: "image", // image activity
+    question: "Select the word with N sound",
+    answer: "Net",
     options: [
-      { label: "Nose", image: require("../../assets/images/nose.jpg") },
-      { label: "Fish", image: require("../../assets/images/fish.jpg") },
-      { label: "Star", image: require("../../assets/images/star.png") },
+      { label: "Net" },
+      { label: "Sun" },
+      { label: "Cat" },
+      { label: "Jug" },
     ],
+    sound: require("../../assets/sound/n.m4a"),
   },
   {
-    letter: "N",
+    type: "voice", // voice input activity
+    question: "Say this letter sound aloud",
+    answer: "N",
+    options: [],
     sound: require("../../assets/sound/n.m4a"),
-    correctAnswers: [
-      { label: "Nut", image: require("../../assets/images/nut.png") },
-    ],
-    options: [
-      { label: "Nut", image: require("../../assets/images/nut.png") },
-      { label: "Apple", image: require("../../assets/images/apple.png") },
-      { label: "Book", image: require("../../assets/images/book.jpg") },
-    ],
-  },
-  {
-    letter: "N",
-    sound: require("../../assets/sound/n.m4a"),
-    correctAnswers: [
-      { label: "Net", image: require("../../assets/images/net.png") },
-    ],
-    options: [
-      { label: "Net", image: require("../../assets/images/net.png") },
-      { label: "Chair", image: require("../../assets/images/chair.jpg") },
-      { label: "Tree", image: require("../../assets/images/tree.png") },
-    ],
   },
 ];
 
-// Shuffle helper
-const shuffleArray = (array: any[]) => {
-  return [...array].sort(() => Math.random() - 0.5);
-};
-
-export default function SoundMatchingGameN() {
-  const router = useRouter();
-  const [score, setScore] = useState(0);
+export default function FlashcardDrillN() {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [wrongAttempt, setWrongAttempt] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [tries, setTries] = useState(2);
+  const [recognizedText, setRecognizedText] = useState("");
 
-  const currentQuestion = questions[questionIndex];
+  const currentQuestion = quizData[currentIndex];
 
+  // Voice setup
   useEffect(() => {
-    const randomized = shuffleArray(nQuestions).map(q => ({
-      ...q,
-      options: shuffleArray(q.options),
-    }));
-    setQuestions(randomized);
-  }, []);
-
-  useEffect(() => {
-    if (currentQuestion) {
-      playLetterSound();
-      setWrongAttempt(false);
-    }
-    return () => {
-      if (sound) sound.unloadAsync();
+    Voice.onSpeechResults = (event) => {
+      if (event.value && event.value.length > 0) {
+        setRecognizedText(event.value[0].toUpperCase());
+        checkVoiceAnswer(event.value[0].toUpperCase());
+      }
     };
-  }, [questionIndex, currentQuestion]);
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, [currentIndex]);
 
-  // Play letter sound
-  const playLetterSound = async () => {
-    if (!currentQuestion) return;
-    try {
-      const { sound: soundObj } = await Audio.Sound.createAsync(currentQuestion.sound);
-      setSound(soundObj);
-      await soundObj.playAsync();
-    } catch (error) {
-      console.error("Error playing sound:", error);
+  useEffect(() => {
+    if (currentQuestion?.sound && currentQuestion.type !== "voice") {
+      playSound(currentQuestion.sound);
     }
+    setTries(2);
+    setRecognizedText("");
+  }, [currentIndex]);
+
+  // ✅ Sound Player
+  const playSound = async (soundFile: any) => {
+    if (sound) await sound.unloadAsync();
+    const { sound: newSound } = await Audio.Sound.createAsync(soundFile);
+    setSound(newSound);
+    await newSound.playAsync();
   };
 
-  // Speak picture name
-  const speakWord = (word: string) => {
-    Speech.speak(word, {
-      language: "en-US",
-      pitch: 1.0,
-      rate: 0.9,
-    });
-  };
-
-  const handleOptionPress = (selectedLabel: string) => {
-    const isCorrect = currentQuestion.correctAnswers.some(
-      (ans: any) => ans.label === selectedLabel
-    );
-
-    if (isCorrect) {
-      setScore(score + 1);
-      if (questionIndex + 1 < questions.length) {
-        Alert.alert("✅ Correct!", "", [
-          { text: "Next", onPress: () => setQuestionIndex(questionIndex + 1) },
-        ]);
-      } else {
-        Alert.alert(`🎯 Game Over! Your Score: ${score + 1}`, "", [
-          { text: "OK", onPress: () => router.push("/") },
-        ]);
-      }
+  const checkAnswer = (selected: string) => {
+    if (selected === currentQuestion.answer) {
+      Alert.alert("✅ Correct!");
+      goNext();
     } else {
-      Vibration.vibrate(500);
-      if (!wrongAttempt) {
-        setWrongAttempt(true);
-        Alert.alert("❌ Try Again!");
+      if (tries > 1) {
+        setTries(tries - 1);
+        Alert.alert("❌ Try Again", `Tries left: ${tries - 1}`);
       } else {
-        if (questionIndex + 1 < questions.length) {
-          Alert.alert("Moving to next question...", "", [
-            { text: "Next", onPress: () => setQuestionIndex(questionIndex + 1) },
-          ]);
-        } else {
-          Alert.alert(`🎯 Game Over! Your Score: ${score}`, "", [
-            { text: "OK", onPress: () => router.push("/") },
-          ]);
-        }
+        Alert.alert("❌ Wrong!", "No tries left");
+        goNext();
       }
     }
   };
 
-  if (!currentQuestion) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.heading}>Loading questions...</Text>
-      </View>
-    );
-  }
+  const checkVoiceAnswer = (spoken: string) => {
+    if (spoken.includes(currentQuestion.answer)) {
+      Alert.alert("✅ Correct!", `You said: ${spoken}`);
+      goNext();
+    } else {
+      if (tries > 1) {
+        setTries(tries - 1);
+        Alert.alert("❌ Try Again", `You said: ${spoken}`);
+      } else {
+        Alert.alert("❌ Wrong!", `Final attempt was: ${spoken}`);
+        goNext();
+      }
+    }
+  };
+
+    const goNext = () => {
+      setTimeout(() => {
+        if (currentIndex < quizData.length - 1) {
+          setCurrentIndex(currentIndex + 1);
+        } else {
+          router.push("/phonics_page/level1");
+        }
+      }, 800);
+    };
+
+  const startListening = async () => {
+    try {
+      setRecognizedText("");
+      await Voice.stop();
+      await Voice.start("en-US");
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Sound Matching - Letter N</Text>
-      <Text style={styles.score}>Score: {score} / {questions.length}</Text>
+      <Text style={styles.question}>{currentQuestion.question}</Text>
 
-      {/* Play Sound Button */}
-      <Pressable style={styles.soundButton} onPress={playLetterSound}>
-        <Text style={styles.soundButtonText}>🔊 Play Letter Sound</Text>
-      </Pressable>
+      {/* Sound activity */}
+      {currentQuestion.type === "sound" && (
+        <Pressable onPress={() => playSound(currentQuestion.sound)}>
+          <Image
+            source={require("../../assets/images/speaker.jpg")}
+            style={{ width: 80, height: 80, alignSelf: "center", margin: 20 }}
+          />
+        </Pressable>
+      )}
+
+      {/* Voice activity */}
+      {currentQuestion.type === "voice" && (
+        <View>
+          <Pressable onPress={() => playSound(currentQuestion.sound)}>
+            <Text style={styles.flashLetter}>{currentQuestion.answer}</Text>
+          </Pressable>
+          {recognizedText ? (
+            <Text style={styles.voiceResult}>You said: {recognizedText}</Text>
+          ) : null}
+        </View>
+      )}
 
       {/* Options */}
-      <View style={styles.optionsRow}>
-        {currentQuestion.options.map((item, idx) => (
-          <View key={idx} style={styles.option}>
-            <Image source={item.image} style={styles.image} />
-            <Pressable style={styles.micButton} onPress={() => speakWord(item.label)}>
-              <Text style={styles.micText}>🎤 Hear Word</Text>
+      {currentQuestion.type !== "voice" && (
+        <View style={styles.options}>
+          {currentQuestion.options.map((opt: any, idx) => (
+            <Pressable
+              key={idx}
+              style={styles.option}
+              onPress={() => checkAnswer(opt.label || opt)}
+            >
+              <Text style={styles.optionText}>
+                {typeof opt === "string" ? opt : opt.label}
+              </Text>
             </Pressable>
-            <Pressable style={styles.selectButton} onPress={() => handleOptionPress(item.label)}>
-              <Text style={styles.selectText}>Select</Text>
-            </Pressable>
-          </View>
-        ))}
-      </View>
+          ))}
+        </View>
+      )}
+
+      {/* Mic button */}
+      {currentQuestion.type === "voice" && (
+        <Pressable style={styles.micButton} onPress={startListening}>
+          <Text style={{ fontSize: 18, color: "#fff" }}>🎤 Speak Now</Text>
+        </Pressable>
+      )}
+
+      <Text style={styles.score}>🔄 Tries Left: {tries}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-  heading: { fontSize: 28, fontWeight: "bold", textAlign: "center", marginBottom: 10 },
-  score: { fontSize: 18, textAlign: "center", marginBottom: 15 },
-  soundButton: {
-    backgroundColor: "#ffcc00",
-    padding: 14,
-    borderRadius: 10,
-    alignItems: "center",
+  question: {
+    fontSize: 20,
+    textAlign: "center",
+    marginBottom: 15,
+    fontWeight: "bold",
+  },
+  flashLetter: {
+    fontSize: 80,
+    textAlign: "center",
     marginBottom: 20,
+    color: "#444",
+    fontWeight: "bold",
   },
-  soundButtonText: { fontSize: 18, fontWeight: "bold" },
-  optionsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-    marginTop: 10,
-  },
+  options: { marginTop: 20 },
   option: {
+    backgroundColor: "#d0f0fd",
+    padding: 15,
+    borderRadius: 12,
+    marginVertical: 8,
     alignItems: "center",
-    marginVertical: 10,
-    width: 120,
   },
-  image: {
-    width: 90,
-    height: 90,
-    borderRadius: 10,
-    marginBottom: 8,
+  optionText: { fontSize: 20, fontWeight: "600" },
+  score: {
+    fontSize: 18,
+    textAlign: "center",
+    marginTop: 20,
+    fontWeight: "600",
   },
   micButton: {
-    backgroundColor: "#2196F3",
-    padding: 6,
-    borderRadius: 6,
-    marginBottom: 6,
-  },
-  micText: { color: "#fff", fontSize: 14 },
-  selectButton: {
     backgroundColor: "#4CAF50",
-    padding: 6,
-    borderRadius: 6,
+    padding: 15,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 20,
   },
-  selectText: { color: "#fff", fontSize: 14 },
+  voiceResult: {
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 10,
+    fontStyle: "italic",
+  },
 });
